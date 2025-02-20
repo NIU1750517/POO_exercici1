@@ -1,4 +1,5 @@
-@startuml
+@startuml Diagrama Ex1 Inicial
+
 left to right direction
 
 title N-BODY SIMULATION 
@@ -44,7 +45,6 @@ note bottom of Universe
     static methods are alternative constructors
     void to explicity state that methods does not return anything
 end note
-
 
 
 @enduml
