@@ -64,12 +64,11 @@ class Universe():
             radius = float(f.readline())
             for _ in range(num_bodies):
                 linia = f.readline()
-                if linia:
-                    m, px, py, vx, vy = [float(z) for z in linia.split()]
-                    bodies.append(Body([px, py], [vx, vy], m))
-                else:
-                    raise ValueError("Empty line encountered in the file")
+                m, px, py, vx, vy = [float(z) for z in linia.strip().split() if z]
+                bodies.append(Body([px, py], [vx, vy], m))
+        print("Universe imported succesfuly !!!")
         return cls(bodies)
+
 
 
 class Body():
