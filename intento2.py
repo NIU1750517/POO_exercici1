@@ -57,7 +57,7 @@ class Universe():
             radius = float(f.readline())
             for _ in range(num_bodies):
                 linia = f.readline()
-                m, px, py, vx, vy = [float(z) for z in linia.strip().split() if z]
+                px, py, vx, vy, m = [float(z) for z in linia.strip().split() if z]
                 bodies.append(Body([px, py], [vx, vy], m))
         print(f"Universe imported successfully {len(bodies)} Bodies !!!")
         return cls(bodies)
@@ -103,10 +103,9 @@ class Body():
 
 #------------------------------------------------------MAIN CODE---------------------------------------------------------------------
 if __name__ == '__main__':
-    universe = Universe.from_file('4cossos.txt')
+    universe = Universe.from_file('2body.txt')
     for body in universe.bodies:
         print(f"Body: {body._position} x, {body._velocity} v, {body._mass} m")
     simulator = NBodySimulator(800, universe)
     time_step = 5000
     simulator.animate(time_step, trace=True)
-
