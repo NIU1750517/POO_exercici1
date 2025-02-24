@@ -48,6 +48,10 @@ class NBodySimulator():
 class Universe():
     def __init__(self, bodies):
         self.bodies = bodies
+        
+    @classmethod
+    def random(cls, num_bodies):
+        return cls([Body.random() for i in range(num_bodies)])
 
     @classmethod
     def from_file(cls, fname):
@@ -68,6 +72,17 @@ class Body():
         self._mass = mass
         self._position = np.array(position)
         self._velocity = np.array(velocity)
+
+    @property
+    def mass(self):
+        return self._mass
+    @property
+    def position(self):
+        return self._position
+    @property
+    def velocity(self):
+        return self._velocity
+    
 
     def _force(self, another_body):
         # Calcula la força gravitatòria exercida per un altre cos.
@@ -100,10 +115,25 @@ class Body():
         # Actualitza la velocitat i posició del cos en funció de la força i el pas de temps.
         total_force = self.total_force(other_bodies)
         self.update(total_force, dt)
+    
+    @staticmethod
+    # note: no cls parameters as in random()
+    def random_vector(a,b,dim=1):
+        # Generates a random vector within the range [a, b]
+        return a + (b-a)*2*(np.random.rand(dim)-0.5)
+    
+    @classmethod
+    def random(cls):
+        # cls is the class (Body), and cls() invokes the __init__ method
+        mass = Body.random_vector(1e10, 1e30)
+        position = Body.random_vector(-1e20, +1e20, 2)
+        velocity = Body.random_vector(1e15, +1e25, 2)
+        return cls(mass, position, velocity)
+
 
 #------------------------------------------------------MAIN CODE---------------------------------------------------------------------
 if __name__ == '__main__':
-    universe = Universe.from_file('5body.txt')
+    universe = Universe.from_file('4body.txt')
     for body in universe.bodies:
         print(f"Body: {body._position} x, {body._velocity} v, {body._mass} m")
     simulator = NBodySimulator(800, universe)
