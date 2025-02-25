@@ -5,9 +5,10 @@ import pygame
 class NBodySimulator():
     def __init__(self, windowSize, universe):
         self._windowSize = windowSize
-        self.space_radius = 1e12
-        self.factor = self._windowSize / 2 / self.space_radius
         self.universe = universe
+        self.space_radius = self.universe.radius
+        self.factor = self._windowSize / 2 / self.space_radius
+
 
     def _draw(self, position_space, color, size=5.):
         position_pixels = self.factor * position_space + self._windowSize / 2.
@@ -16,7 +17,7 @@ class NBodySimulator():
     def animate(self, time_step, trace=False):
         pygame.init()
         self.screen = pygame.display.set_mode([self._windowSize, self._windowSize])
-        pygame.display.set_caption(f'N-Body Simulation      time step = {time_step}       {len(universe.bodies)} Bodies' )
+        pygame.display.set_caption(f'N-Body Simulation  |  timestep = {time_step}  |  {len(universe.bodies)} Body' )
         running = True
         color_background, color_body, color_trace = (128, 128, 128), (0, 0, 0), (192, 192, 192)
         self.screen.fill(color_background)
@@ -46,8 +47,9 @@ class NBodySimulator():
             body.update(total_force, time_step)
 
 class Universe():
-    def __init__(self, bodies):
+    def __init__(self, bodies, radius=1e12):
         self.bodies = bodies
+        self.radius = radius
         
     @classmethod
     def random(cls, num_bodies):
@@ -67,7 +69,7 @@ class Universe():
                 px, py, vx, vy, m = [float(z) for z in linia.strip().split() if z]
                 bodies.append(Body([px, py], [vx, vy], m))
         print(f"Universe imported successfully {len(bodies)} Bodies !!!")
-        return cls(bodies)
+        return cls(bodies, radius)
 
 class Body():
     G = 6.67408e-11
@@ -135,7 +137,7 @@ class Body():
 
 #------------------------------------------------------MAIN CODE---------------------------------------------------------------------
 if __name__ == '__main__':
-    universe = Universe.random(6)
+    universe = Universe.from_file("4body.txt")
     for body in universe.bodies:
         print(f"Body: {body._position} x, {body._velocity} v, {body._mass} m")
     simulator = NBodySimulator(800, universe)
