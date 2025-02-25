@@ -9,7 +9,6 @@ class NBodySimulator():
         self.space_radius = self.universe.radius
         self.factor = self._windowSize / 2 / self.space_radius
 
-
     def _draw(self, position_space, color, size=5.):
         position_pixels = self.factor * position_space + self._windowSize / 2.
         pygame.draw.circle(self.screen, color, position_pixels, size)
@@ -17,7 +16,7 @@ class NBodySimulator():
     def animate(self, time_step, trace=False):
         pygame.init()
         self.screen = pygame.display.set_mode([self._windowSize, self._windowSize])
-        pygame.display.set_caption(f'N-Body Simulation  |  timestep = {time_step}  |  {len(universe.bodies)} Body' )
+        pygame.display.set_caption(f'N-Body Simulation  |  timestep = {time_step}  |  {len(self.universe.bodies)} Body' )
         running = True
         color_background, color_body, color_trace = (128, 128, 128), (0, 0, 0), (192, 192, 192)
         self.screen.fill(color_background)
@@ -35,9 +34,9 @@ class NBodySimulator():
                 pygame.display.flip()
             else:
                 self.screen.fill(color_background)
+                self._update(time_step)
                 for body in self.universe.bodies:
                     self._draw(body._position, color_body)
-                self._update(time_step)
                 pygame.display.flip()
         pygame.quit()
 
@@ -53,10 +52,10 @@ class Universe():
         
     @classmethod
     def random(cls, num_bodies):
-        lista=[Body([0,0],[0,0],1e30)]
+        bodies=[Body([0,0],[0,0],1e32)]
         for i in range(num_bodies-1):
-            lista.append(Body.random())
-        return cls(lista)
+            bodies.append(Body.random())
+        return cls(bodies)
     
     @classmethod
     def from_file(cls, fname):
@@ -75,8 +74,9 @@ class Body():
     G = 6.67408e-11
     def __init__(self, position, velocity, mass):
         self._mass = mass
-        self._position = np.array(position)
-        self._velocity = np.array(velocity)
+        self._position = np.array(position, dtype=np.float64)  
+        self._velocity = np.array(velocity, dtype=np.float64)   
+
 
     @property
     def mass(self):
@@ -121,23 +121,22 @@ class Body():
         self.update(total_force, dt)
     
     @staticmethod
-    # note: no cls parameters as in random()
-    def random_vector(a,b,dim=1):
-        # Generates a random vector within the range [a, b]
-        return a + (b-a)*2*(np.random.rand(dim)-0.5)
+    def random_vector(a, b, dim=2):
+        return np.random.uniform(a, b, dim)
     
     @classmethod
-    def random(cls):
-        # cls is the class (Body), and cls() invokes the __init__ method
-        mass = Body.random_vector(1e10, 1e30)
-        position = Body.random_vector(-1e20, +1e20, 2)
-        velocity = Body.random_vector(1e15, +1e25, 2)
-        return cls(mass, position, velocity)
+    def random(cls, universe_radius=1e12): 
+        mass = np.random.uniform(1e23, 1e29)
+        position = Body.random_vector(-universe_radius, universe_radius, 2)
+        velocity = Body.random_vector(-1e5, 1e5, 2)
+        
+        return cls(position, velocity, mass)
 
 
 #------------------------------------------------------MAIN CODE---------------------------------------------------------------------
 if __name__ == '__main__':
-    universe = Universe.from_file("4body.txt")
+    universe = Universe.random(10)
+    #universe = Universe.from_file('2body.txt')
     for body in universe.bodies:
         print(f"Body: {body._position} x, {body._velocity} v, {body._mass} m")
     simulator = NBodySimulator(800, universe)
