@@ -16,7 +16,7 @@ class NBodySimulator():
     def animate(self, time_step, trace=False):
         pygame.init()
         self.screen = pygame.display.set_mode([self._windowSize, self._windowSize])
-        pygame.display.set_caption('N-Body Simulation, time step = {}'.format(time_step))
+        pygame.display.set_caption(f'N-Body Simulation      time step = {time_step}       {len(universe.bodies)} Bodies' )
         running = True
         color_background, color_body, color_trace = (128, 128, 128), (0, 0, 0), (192, 192, 192)
         self.screen.fill(color_background)
@@ -51,8 +51,11 @@ class Universe():
         
     @classmethod
     def random(cls, num_bodies):
-        return cls([Body.random() for i in range(num_bodies)])
-
+        lista=[Body([0,0],[0,0],1e30)]
+        for i in range(num_bodies-1):
+            lista.append(Body.random())
+        return cls(lista)
+    
     @classmethod
     def from_file(cls, fname):
         bodies = []
@@ -82,7 +85,6 @@ class Body():
     @property
     def velocity(self):
         return self._velocity
-    
 
     def _force(self, another_body):
         # Calcula la força gravitatòria exercida per un altre cos.
@@ -133,7 +135,7 @@ class Body():
 
 #------------------------------------------------------MAIN CODE---------------------------------------------------------------------
 if __name__ == '__main__':
-    universe = Universe.from_file('4body.txt')
+    universe = Universe.random(6)
     for body in universe.bodies:
         print(f"Body: {body._position} x, {body._velocity} v, {body._mass} m")
     simulator = NBodySimulator(800, universe)
