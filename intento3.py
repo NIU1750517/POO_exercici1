@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import pygame
+import math
 
 class NBodySimulator():
     def __init__(self, windowSize, universe):
@@ -8,36 +9,64 @@ class NBodySimulator():
         self.universe = universe
         self.space_radius = self.universe.radius
         self.factor = self._windowSize / 2 / self.space_radius
+        self.star_positions = self._generate_star_field(200)  # Genera 200 estrellas
+
+    def _generate_star_field(self, num_stars):
+        """Genera una lista de posiciones para las estrellas de fondo."""
+        star_positions = []
+        for _ in range(num_stars):
+            x = random.randint(0, self._windowSize)
+            y = random.randint(0, self._windowSize)
+            star_positions.append((x, y))
+        return star_positions
+
+    def _draw_star_field(self):
+        """Dibuja las estrellas de fondo en la pantalla."""
+        for pos in self.star_positions:
+            self.screen.set_at(pos, (255, 255, 255))  # Dibuja un punto blanco
 
     def _draw(self, position_space, color, size=5.):
-        position_pixels = self.factor * position_space + self._windowSize / 2.
-        pygame.draw.circle(self.screen, color, position_pixels, size)
-    
+        position_pixels = self.factor * np.array(position_space) + self._windowSize / 2.
+        pygame.draw.circle(self.screen, color, position_pixels.astype(int), size)
+
+
     def animate(self, time_step, trace=False):
         pygame.init()
         self.screen = pygame.display.set_mode([self._windowSize, self._windowSize])
-        pygame.display.set_caption(f'N-Body Simulation  |  timestep = {time_step}  |  {len(self.universe.bodies)} Body' )
+        pygame.display.set_caption('N-Body Simulation, time step = {}'.format(time_step))
         running = True
-        color_background, color_body, color_trace = (128, 128, 128), (0, 0, 0), (192, 192, 192)
-        self.screen.fill(color_background)
+        color_background = (21, 16, 25)
+        color_body = (199, 0, 57)
+        color_trace = (39, 30, 47)
+        color_sun = (255, 162, 0)
 
+        max_mass = max(body.mass for body in self.universe.bodies)
+        max_mass_count = sum(1 for body in self.universe.bodies if body.mass == max_mass)
+
+
+        self.screen.fill(color_background)
+        self._draw_star_field()  # Dibuja las estrellas de fondo
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+
             if trace:
                 for body in self.universe.bodies:
-                    self._draw(body._position, color_trace)
+                    self._draw(body.position, color_trace)
                 self._update(time_step)
+
                 for body in self.universe.bodies:
-                    self._draw(body._position, color_body)
-                pygame.display.flip()
+                    if max_mass_count == 1 and body.mass == max_mass:
+                        self._draw(body.position, color_sun, 10)
+                    else:
+                        self._draw(body.position, color_body)
             else:
-                self.screen.fill(color_background)
-                self._update(time_step)
                 for body in self.universe.bodies:
-                    self._draw(body._position, color_body)
-                pygame.display.flip()
+                    self._draw(body.position, color_body)
+                self._update(time_step)
+
+            pygame.display.flip()
         pygame.quit()
 
     def _update(self, time_step):
@@ -49,6 +78,7 @@ class Universe():
     def __init__(self, bodies, radius=1e12):
         self.bodies = bodies
         self.radius = radius
+        self.num_bodies = len(bodies)
         
     @classmethod
     def random(cls, num_bodies):
@@ -126,17 +156,17 @@ class Body():
     
     @classmethod
     def random(cls, universe_radius=1e12): 
-        mass = np.random.uniform(1e23, 1e29)
+        mass = np.random.uniform(1e22, 1e24)
         position = Body.random_vector(-universe_radius, universe_radius, 2)
-        velocity = Body.random_vector(-1e5, 1e5, 2)
+        velocity = Body.random_vector(1e05, 1e04, 2)
         
         return cls(position, velocity, mass)
 
 
 #------------------------------------------------------MAIN CODE---------------------------------------------------------------------
 if __name__ == '__main__':
-    universe = Universe.random(10)
-    #universe = Universe.from_file('2body.txt')
+    #universe = Universe.random(10)
+    universe = Universe.from_file('5body.txt')
     for body in universe.bodies:
         print(f"Body: {body._position} x, {body._velocity} v, {body._mass} m")
     simulator = NBodySimulator(800, universe)
