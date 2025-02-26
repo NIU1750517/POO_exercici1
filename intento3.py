@@ -1,7 +1,6 @@
 import random
 import numpy as np
 import pygame
-import math
 
 class NBodySimulator():
     def __init__(self, windowSize, universe):
@@ -78,7 +77,6 @@ class Universe():
     def __init__(self, bodies, radius=1e12):
         self.bodies = bodies
         self.radius = radius
-        self.num_bodies = len(bodies)
         
     @classmethod
     def random(cls, num_bodies):
