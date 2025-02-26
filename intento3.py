@@ -166,7 +166,7 @@ class Body():
 #------------------------------------------------------MAIN CODE---------------------------------------------------------------------
 if __name__ == '__main__':
     #universe = Universe.random(10)
-    universe = Universe.from_file('5body.txt')
+    universe = Universe.from_file('2body.txt')
     for body in universe.bodies:
         print(f"Body: {body._position} x, {body._velocity} v, {body._mass} m")
     simulator = NBodySimulator(800, universe)
