@@ -97,6 +97,23 @@ class Universe():
                 bodies.append(Body([px, py], [vx, vy], m))
         print(f"Universe imported successfully {len(bodies)} Bodies !!!")
         return cls(bodies, radius)
+    @classmethod
+    def configured_interactive(cls):
+        bodies = []
+        num_bodies = int(input("¿Cuántos cuerpos querés agregar? "))
+        for i in range(num_bodies):
+            print(f"\nCuerpo {i+1}:")
+            x = float(input("Posición X (m): "))
+            y = float(input("Posición Y (m): "))
+            vx = float(input("Velocidad X (m/s): "))
+            vy = float(input("Velocidad Y (m/s): "))
+            mass = float(input("Masa (kg): "))
+
+            body = Body(position=[x, y], velocity=[vx, vy], mass=mass)
+            bodies.append(body)
+
+        return cls(bodies)
+    
 
 class Body():
     G = 6.67408e-11
@@ -159,12 +176,14 @@ class Body():
         velocity = Body.random_vector(1e05, 1e04, 2)
         
         return cls(position, velocity, mass)
+ 
 
 
 #------------------------------------------------------MAIN CODE---------------------------------------------------------------------
 if __name__ == '__main__':
     #universe = Universe.random(10)
-    universe = Universe.from_file('2body.txt')
+    universe = Universe.from_file('5body.txt')
+    #universe = Universe.configured_interactive()
     for body in universe.bodies:
         print(f"Body: {body._position} x, {body._velocity} v, {body._mass} m")
     simulator = NBodySimulator(800, universe)
